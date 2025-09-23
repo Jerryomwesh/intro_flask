@@ -1,10 +1,10 @@
 from flask import Blueprint,jsonify,request
 
 #create student bluprint
-student_bp=Blueprint("student",__name__)
+student_bp=Blueprint("student",__name__,url_prefix="/student")
 
 
-@student_bp.route("/",methods=["GET"])
+@student_bp.route("/add",methods=["GET"])
 def single_student():
     print("Single student")
     return "Single student"
