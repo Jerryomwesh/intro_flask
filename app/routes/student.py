@@ -7,7 +7,7 @@ student_bp=Blueprint("student",__name__,url_prefix="/student")
 
 
 @student_bp.route("/add",methods=["GET"])
-def single_student():
+def singlee_student():
     print("Single student")
     return "Single student"
 
@@ -81,3 +81,57 @@ def list_users():
     return jsonify(student_list),200
 
 
+#getting a single student 
+@student_bp.route("/single/<int:id>",methods=["GET"])
+def single_student(id):
+
+    student=Student.query.filter_by(id=id).first()
+
+    if not student:
+        return jsonify({"message":f"Student with id {student_id} not found"}),404
+    
+    return jsonify({
+        "id":student.id,
+        "name":student.name,
+        "email":student.email,
+        "created_at":student.created_at.isoformat()
+    }),200
+
+
+
+#editing a student  
+@student_bp.route("/edit/<int:id>",methods=["PUT"])
+def edit_student_id(id):
+
+    student=Student.query.filter_by(id=id).first()
+
+    if not student:
+        return jsonify({"message":f"Student with id {id} not found"}),404
+    
+    data=request.get_json() #Body to json as python dic
+
+    name=data.get("name")
+    email=data.get("email")
+
+    if not name or not email:
+        return jsonify ({"error":"Name and email are required"}),400
+    
+    #check for existing email
+    exists=Student.query.filter_by(email=email).first()
+    if exists and exists.id != id:
+        return jsonify({"error":"Email already exists"}),400
+    
+    student.name=name
+    student.email=email
+
+    db.session.commit()
+
+    return jsonify({
+        "message":"Student updated successfully",
+        "student":{
+            "id":student.id,
+            "name":student.name,
+            "email":student.email,
+            "created_at":student.created_at.isoformat()
+            }
+        }),200    
